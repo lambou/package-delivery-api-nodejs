@@ -1,0 +1,43 @@
+{
+  "name": "package-delivry-api",
+  "version": "1.0.0",
+  "description": "Job test",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"No test\";",
+    "dev": "env-cmd -f .env.local nodemon -r tsconfig-paths/register ./src/index.ts",
+    "prestart": "tsc",
+    "start": "./dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lambou/package-delivery-api-nodejs.git"
+  },
+  "keywords": [
+    "delivery",
+    "tracking",
+    "package"
+  ],
+  "author": "Arnold LAMBOU",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lambou/package-delivery-api-nodejs/issues"
+  },
+  "homepage": "https://github.com/lambou/package-delivery-api-nodejs#readme",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2",
+    "mongoose": "^8.4.5",
+    "serialize-error": "^11.0.3",
+    "ws": "^8.18.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "env-cmd": "^10.1.0",
+    "nodemon": "^3.1.4",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.5.3"
+  }
+}
