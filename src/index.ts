@@ -1,9 +1,11 @@
 import bodyParser from "body-parser";
+import cors from "cors";
 import express from "express";
 import { connect } from "mongoose";
 import { WebSocket } from "ws";
 import IWebSocketEvent from "./interfaces/IWebSocketEvent";
 import { updateDeliveryStatusFromEvent } from "./lib/deliveryUtils";
+import deliveryRoutes from "./routes/delivery";
 import packageRoutes from "./routes/package";
 
 const app = express();
@@ -11,8 +13,8 @@ const app = express();
 // api router
 const api = express.Router();
 
-// routes injection
-packageRoutes(api);
+// enabling all origins (text only)
+app.use(cors({ origin: "*" }))
 
 // attach api
 app.use('/api', api);
@@ -22,6 +24,10 @@ app.use(express.static('public'))
 
 // parsing json body
 app.use(bodyParser.json({ type: 'application/*+json' }))
+
+// routes injection
+packageRoutes(api);
+deliveryRoutes(api);
 
 app.get('/', (req, res) => {
     res.send('This is an api');

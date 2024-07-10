@@ -25,10 +25,11 @@
   },
   "homepage": "https://github.com/lambou/package-delivery-api-nodejs#readme",
   "dependencies": {
+    "@types/cors": "^2.8.17",
     "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
     "express": "^4.19.2",
     "mongoose": "^8.4.5",
-    "serialize-error": "^11.0.3",
     "ws": "^8.18.0",
     "zod": "^3.23.8"
   },

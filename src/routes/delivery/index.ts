@@ -1,31 +1,41 @@
-import { Router } from "express"
-import Delivery from "@/models/Delivery";
-import { z } from "zod";
 import { serializeError } from "@/lib/utils";
+import Delivery from "@/models/Delivery";
 import Package from "@/models/Package";
+import bodyParser from "body-parser";
+import { Router } from "express";
+import { z } from "zod";
 
 export default function deliveryRoutes(api: Router) {
     const router = Router();
 
+    router.use(bodyParser.json());
+
     // Get all deliveries
     router.get('/', async (req, res) => {
-        const page = Number(req.query.page ?? 1), limit = Number(req.query.limit ?? 10);
-        // calculate the items to skip
-        const skip = (page - 1) * limit;
-        // load total
-        const total = await Delivery.countDocuments({});
-        // load data
-        const list = await Delivery.find({}).skip(skip).limit(limit).populate([{
-            path: 'package'
-        }]);
+        const paginatedResult = typeof req.query.paginate === "string" && ["true", "1", "yes"].includes(req.query.paginate.toLowerCase());
 
-        res.json({
-            page,
-            limit,
-            total,
-            pages: Math.ceil(total / limit),
-            docs: list
-        });
+        if (paginatedResult) {
+            const page = Number(req.query.page ?? 1), limit = Number(req.query.limit ?? 10);
+            // calculate the items to skip
+            const skip = (page - 1) * limit;
+            // load total
+            const total = await Delivery.countDocuments({});
+            // load data
+            const list = await Delivery.find({}).sort({ createdAt: 'desc' }).skip(skip).limit(limit).populate('package');
+
+            res.json({
+                page,
+                limit,
+                total,
+                pages: Math.ceil(total / limit),
+                docs: list
+            });
+        } else {
+            // load data
+            const list = await Package.find({}).sort({ createdAt: 'desc' }).populate('package');
+
+            res.json(list);
+        }
     });
 
     // Get delivery by ID
@@ -61,10 +71,20 @@ export default function deliveryRoutes(api: Router) {
                 } else {
                     // create the delivery
                     const data = await Delivery.create({
-                        ...payload,
+                        package: payload.package_id,
                         location: _package.from_location,
                         status: "open"
                     });
+
+                    // checking if there is no active delivery
+                    if (!_package.active_delivery || ["delivered", "failed"].includes(_package.active_delivery.status)) {
+                        // update the active delivery
+                        await Package.findByIdAndUpdate(_package._id, {
+                            $set: {
+                                active_delivery: data._id
+                            }
+                        });
+                    }
 
                     res.status(201).json(data);
                 }

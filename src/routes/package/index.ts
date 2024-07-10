@@ -1,11 +1,14 @@
-import { Router } from "express"
-import Package from "@/models/Package";
-import Delivery from "@/models/Delivery";
-import { z } from "zod";
 import { serializeError } from "@/lib/utils";
+import Delivery from "@/models/Delivery";
+import Package from "@/models/Package";
+import bodyParser from "body-parser";
+import { Router } from "express";
+import { z } from "zod";
 
 export default function packageRoutes(api: Router) {
     const router = Router();
+
+    router.use(bodyParser.json())
 
     // Get all packages
     router.get('/', async (req, res) => {
@@ -18,7 +21,7 @@ export default function packageRoutes(api: Router) {
             // load total
             const total = await Package.countDocuments({});
             // load data
-            const list = await Package.find({}).skip(skip).limit(limit).populate([{
+            const list = await Package.find({}).sort({ createdAt: 'desc' }).skip(skip).limit(limit).populate([{
                 path: 'active_delivery'
             }]);
 
@@ -31,7 +34,7 @@ export default function packageRoutes(api: Router) {
             });
         } else {
             // load data
-            const list = await Package.find({}).populate([{
+            const list = await Package.find({}).sort({ createdAt: 'desc' }).populate([{
                 path: 'active_delivery'
             }]);
 
@@ -51,20 +54,20 @@ export default function packageRoutes(api: Router) {
     });
 
     const upsertPackageSchema = z.object({
-        description: z.string(),
+        description: z.string().min(1, "The description is required."),
         weight: z.number().positive(),
         width: z.number().positive(),
         height: z.number().positive(),
         depth: z.number().positive(),
-        from_name: z.string({ required_error: "The from name is required." }),
-        from_address: z.string({ required_error: "The from address is required." }),
+        from_name: z.string().min(1, "The from name is required."),
+        from_address: z.string().min(1, "The from address is required."),
         from_location: z.object({
-            lat: z.string({ required_error: "The latitude is required." }), lng: z.string({ required_error: "The longitude is required." })
+            lat: z.number({ required_error: "The latitude is required." }), lng: z.number({ required_error: "The longitude is required." })
         }),
-        to_name: z.string({ required_error: "The recipient name is required." }),
-        to_address: z.string({ required_error: "The recipient address is required." }),
+        to_name: z.string().min(1, "The recipient name is required."),
+        to_address: z.string().min(1, "The recipient address is required."),
         to_location: z.object({
-            lat: z.string({ required_error: "The latitude is required." }), lng: z.string({ required_error: "The longitude is required." })
+            lat: z.number({ required_error: "The latitude is required." }), lng: z.number({ required_error: "The longitude is required." })
         })
     })
 
