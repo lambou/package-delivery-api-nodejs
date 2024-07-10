@@ -9,23 +9,34 @@ export default function packageRoutes(api: Router) {
 
     // Get all packages
     router.get('/', async (req, res) => {
-        const page = Number(req.query.page ?? 1), limit = Number(req.query.limit ?? 10);
-        // calculate the items to skip
-        const skip = (page - 1) * limit;
-        // load total
-        const total = await Package.countDocuments({});
-        // load data
-        const list = await Package.find({}).skip(skip).limit(limit).populate([{
-            path: 'active_delivery'
-        }]);
+        const paginatedResult = typeof req.query.paginate === "string" && ["true", "1", "yes"].includes(req.query.paginate.toLowerCase());
 
-        res.json({
-            page,
-            limit,
-            total,
-            pages: Math.ceil(total / limit),
-            docs: list
-        });
+        if (paginatedResult) {
+            const page = Number(req.query.page ?? 1), limit = Number(req.query.limit ?? 10);
+            // calculate the items to skip
+            const skip = (page - 1) * limit;
+            // load total
+            const total = await Package.countDocuments({});
+            // load data
+            const list = await Package.find({}).skip(skip).limit(limit).populate([{
+                path: 'active_delivery'
+            }]);
+
+            res.json({
+                page,
+                limit,
+                total,
+                pages: Math.ceil(total / limit),
+                docs: list
+            });
+        } else {
+            // load data
+            const list = await Package.find({}).populate([{
+                path: 'active_delivery'
+            }]);
+
+            res.json(list);
+        }
     });
 
     // Get package by ID
