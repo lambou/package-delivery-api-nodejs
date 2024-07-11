@@ -48,7 +48,9 @@ async function main() {
     })
 
     wsServer.on("connection", function (ws) {
-        ws.on("message", async function (msg: IWebSocketEvent) {
+        console.log("websocket connection established");
+        ws.on("message", async function (message) {
+            const msg = JSON.parse(message.toString()) as IWebSocketEvent;
             // update the delivery according to the event type
             const delivery = await updateDeliveryStatusFromEvent(msg);
 

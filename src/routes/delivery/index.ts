@@ -40,12 +40,16 @@ export default function deliveryRoutes(api: Router) {
 
     // Get delivery by ID
     router.get('/:id', async (req, res) => {
-        const data = await Delivery.findById(req.params.id).populate('package');
+        try {
+            const data = await Delivery.findById(req.params.id).populate('package');
 
-        if (data) {
-            res.status(200).json(data);
-        } else {
-            res.status(404).send(undefined);
+            if (data) {
+                res.status(200).json(data);
+            } else {
+                res.status(404).send(undefined);
+            }
+        } catch (error) {
+            res.status(500).json(await serializeError(error));
         }
     });
 

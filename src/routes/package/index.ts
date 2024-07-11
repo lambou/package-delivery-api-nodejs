@@ -44,12 +44,16 @@ export default function packageRoutes(api: Router) {
 
     // Get package by ID
     router.get('/:id', async (req, res) => {
-        const data = await Package.findById(req.params.id).populate('active_delivery');
+        try {
+            const data = await Package.findById(req.params.id).populate('active_delivery');
 
-        if (data) {
-            res.status(200).json(data);
-        } else {
-            res.status(404).send(undefined);
+            if (data) {
+                res.status(200).json(data);
+            } else {
+                res.status(404).send(undefined);
+            }
+        } catch (error) {
+            res.status(500).json(await serializeError(error));
         }
     });
 
