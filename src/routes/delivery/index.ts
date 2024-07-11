@@ -76,7 +76,6 @@ export default function deliveryRoutes(api: Router) {
                     // create the delivery
                     const data = await Delivery.create({
                         package: payload.package_id,
-                        location: _package.from_location,
                         status: "open"
                     });
 

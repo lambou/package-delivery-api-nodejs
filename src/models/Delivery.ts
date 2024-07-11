@@ -1,12 +1,12 @@
 import { Document, model, Schema } from "mongoose";
 import { IPackage } from "./Package";
 
-export interface IDelivery extends Document{
+export interface IDelivery extends Document {
     package: IPackage;
     pickup_time?: Date;
     start_time?: Date;
     end_time?: Date;
-    location: {
+    location?: {
         lat: string;
         lng: string;
     },
